@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 import math
 
 # Define the robot geometry
-L1 = 148.4
+L1 = 169.2
 L2 = 566.9
-L3 = 148.4
-L4 = 522.4
+L3 = 522.4
+L4 = 110.7
 L5 = 110.7
-L6 = 110.7
+L6 = 96.7
 
 
 
@@ -42,15 +42,9 @@ def inverse_kinematics(x, y, z, roll, pitch, yaw):
 
 
 # Test the inverse kinematics
-q = inverse_kinematics(600, 600, 600, 1, 1, 1)
+q = inverse_kinematics(500, 600, 600, 1, 1, 1)
 
 
-
-# Test the inverse kinematics
-q = inverse_kinematics(600, 600, 600, 1, 1, 1)
-
-# Define the joint angles
-#q = np.array([0, 0, 0, 0, 0, 0])
 
 # Define the positions of each joint
 P0 = np.array([0, 0, 0])
@@ -75,7 +69,7 @@ ax.plot([P0[0], P1[0], P2[0], P3[0], P4[0], P5[0], P6[0]],
 
 # Show the plot
 plt.show()
-
+print(P6)
 
 
 
