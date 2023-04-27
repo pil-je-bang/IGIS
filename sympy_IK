@@ -1,0 +1,98 @@
+import numpy as np
+import math
+import matplotlib.pyplot as plt
+import sympy as sym
+
+# DH 파라미터 정의
+d1 = 169.2
+d2 = 148.4
+d3 = 148.4
+d4 = 110.7
+d5 = 110.7
+d6 = 96.7
+a1 = 566.9
+a2 = 522.4
+
+q1, q2, q3, q4, q5, q6 = sym.symbols('q1 q2 q3 q4 q5 q6')
+
+
+# DH 파라미터 행렬 정의
+DH_params = sym.Matrix([
+    [q1, 169.2, 0, -sym.pi/2],
+    [q2-sym.pi/2, -148.4, 0, 0],
+    [0, 0, 566.9, 0],
+    [q3, 148.4, 0, 0],
+    [0, 0, 522.4, 0],
+    [q4+sym.pi/2, -110.7, 0, 0],
+    [0, 0, 0, sym.pi/2],
+    [q5, 110.7, 0, -sym.pi/2],
+    [q6, -96.7, 0, sym.pi/2]
+]).T
+
+
+
+# 끝점의 (x, y, z, roll, pitch, yaw)를 입력
+x, y, z, roll, pitch, yaw = 300, 300, 300, 0, 0,0
+
+# 변환 행렬 정의
+T = np.array([
+    [math.cos(yaw)*math.cos(pitch), -math.sin(yaw)*math.cos(roll)+math.cos(yaw)*math.sin(pitch)*math.sin(roll), math.sin(yaw)*math.sin(roll)+math.cos(yaw)*math.sin(pitch)*math.cos(roll), x],
+    [math.sin(yaw)*math.cos(pitch), math.cos(yaw)*math.cos(roll)+math.sin(yaw)*math.sin(pitch)*math.sin(roll), -math.cos(yaw)*math.sin(roll)+math.sin(yaw)*math.sin(pitch)*math.cos(roll), y],
+    [-math.sin(pitch), math.cos(pitch)*math.sin(roll), math.cos(pitch)*math.cos(roll), z],
+    [0, 0, 0, 1]
+])
+
+# 끝점의 위치를 추출
+end_effector_pos = T[:3, 3]
+
+
+# np.linalg.pinv() 함수를 사용하여 역행렬을 구하고, 각 관절 각도를 계산
+joints = DH_params.pinv() @ sym.Matrix([end_effector_pos[0], end_effector_pos[1], end_effector_pos[2], 1])
+joints = joints.applyfunc(lambda x: sym.N(x, 2))
+print(joints)
+
+a = np.array([[0.86, -0.23, 2.43, 1.70, 2.24, 2.37],
+              [0.50, 0.87, 0, 0.40, -1.04, -0.99],
+              [0, -0.04, 1.74, 0.50, 1.74, -0.04],
+              [-0.87, 0.50, 0, 0, 0.50, 0.50],
+              [0.50, 0.87, 0.87, -1.87, -0.13, 0.13],
+              [-0.87, 0.50, -0.50, -0.50, 2.03, -1.57]])
+
+b = np.array([-1.49, -2.43, -1.29, -1.57, 0, 0])
+
+q = np.linalg.solve(a, b)
+
+print(q)
+
+
+#q[1]=q[1]+math.pi
+#q[5]=q[5]-math.pi
+
+# 결과 출력
+#q=joints[:6,]
+
+#q= np.array([joints[0],joints[2],joints[4],joints[6],joints[7],joints[8]])
+
+P0 = np.array([0, 0, 0])
+P1 = P0 + np.array([0, 0, d1])
+P2 = P1 + np.array([a1 * np.cos(q[0]), a1 * np.sin(q[0]), d2])
+P3 = P2 + np.array([a2 * np.sin(q[1]) * np.cos(q[0]), a2 * np.sin(q[1]) * np.sin(q[0]), d3 + a2 * np.cos(q[1])])
+P4 = P3 + np.array([(d4 + d5) * np.sin(q[1] + q[2]) * np.cos(q[0]), (d4 + d5) * np.sin(q[1] + q[2]) * np.sin(q[0]), d3 + d6 + d4 + d5 * np.cos(q[1] + q[2])])
+P5 = P4 + np.array([d6 * np.sin(q[1] + q[2] + q[3]) * np.cos(q[0]), d6 * np.sin(q[1] + q[2] + q[3]) * np.sin(q[0]), -d6 * np.cos(q[1] + q[2] + q[3])])
+P6 = P5 + np.array([0, 0, d6 * np.cos(q[1] + q[2] + q[3] + q[4])])
+
+# Define the plot settings
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.set_xlim(-1000, 1000)
+ax.set_ylim(-1000, 1000)
+ax.set_zlim(0, 1000)
+
+# Plot the arm
+ax.plot([P0[0], P1[0], P2[0], P3[0], P4[0], P5[0], P6[0]],
+        [P0[1], P1[1], P2[1], P3[1], P4[1], P5[1], P6[1]],
+        [P0[2], P1[2], P2[2], P3[2], P4[2], P5[2], P6[2]], 'ro-')
+
+# Show the plot
+plt.show()
+print(P6)
