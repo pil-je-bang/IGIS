@@ -42,16 +42,18 @@ def rotation_matrix(roll, pitch, yaw):
     R = np.dot(R_z, np.dot(R_y, R_x))
     return R
 
+
+
 def inverse_kinematics(x, y, z, roll, pitch, yaw):
     # Calculate the rotation matrix from roll, pitch, and yaw angles
     R = rotation_matrix(roll, pitch, yaw)
 
     # Calculate the position of the wrist center
-   #Pw = sym.Matrix([x, y, z]) - 96.7*R[:, 2]
-    Pw = sym.Matrix([x, y, z]) - np.dot(96.7*R[:, 2], np.ones(3))
+    Pw = sym.Matrix([x, y, z]) - 96.7*R[:, 2].reshape(3,1)
+    #Pw = sym.Matrix([x, y, z]) - np.dot(96.7*R[:, 2], np.ones(3))
 
     # Calculate the joint angles q1 to q6 using inverse kinematics
-    Pc = Pw - 148.4*R[:, 0]
+    Pc = Pw - 148.4*R[:, 0].reshape(3,1)
     q1 = sym.atan2(Pc[1], Pc[0])
 
     D = (Pc[0]**2 + Pc[1]**2 + (Pc[2]-169.2)**2 - 148.4**2 - 566.9**2) / (2*148.4*566.9)
@@ -70,9 +72,13 @@ def inverse_kinematics(x, y, z, roll, pitch, yaw):
     # Return the joint angles as a tuple
     return q1, q2, q3, q4, q5, q6
 
-q= inverse_kinematics(146.653946418090,-146.653946418090,1369.20000000000,0,0,0)
+q= inverse_kinematics(600, 300, 400,0,0,0)
+print (q)
 
-#q1,q2,q3,q4,q5,q6=math.pi/4,0,0,0,0,0
+
+q1,q2,q3,q4,q5,q6 =q[0],q[1],q[2],q[3],q[4],q[5]
+
+q1,q2,q3,q4,q5,q6=0,0,0,0,0,0
 
 # 각 관절 위치 계산
 T01 = DH_transform(q1, 169.2, 0, -sym.pi/2)
@@ -127,3 +133,6 @@ ax.plot([P0[0], P1[0], P2[0], P3[0], P4[0], P5[0], P6[0], P7[0], P8[0],P9[0]],
 result = P9
 
 print(result)
+
+
+
