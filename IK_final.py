@@ -3,6 +3,8 @@ from scipy.optimize import minimize
 import sympy as sym
 from scipy.spatial.transform import Rotation
 import matplotlib.pyplot as plt
+import math
+
 
 # Define symbols for joint variables
 q1, q2, q3, q4, q5, q6 = sym.symbols('q1 q2 q3 q4 q5 q6')
@@ -72,14 +74,16 @@ def inverse_kinematics(x_desired, ori_desired):
     q_initial_guess = np.array([0, 0, 0, 0, 0, 0])
     
     # Use the SLSQP algorithm to minimize the error function
-    result = minimize(error_function, q_initial_guess, method='SLSQP')
+    result = minimize(error_function, q_initial_guess, method='BFGS')
     
     return result.x
 
-
 roll = 0
-pitch = 0
+pitch= 0
 yaw = 0
+
+
+
 
 # Convert Euler angles to rotation matrix
 r = Rotation.from_euler('xyz', [roll, pitch, yaw], degrees=False)
@@ -88,7 +92,7 @@ rot_mat = r.as_matrix()
 print(rot_mat)
 
 # Set the desired end effector position and orientation
-x_desired = np.array([[0], [-207.4], [1369.2]])
+x_desired = np.array([[1000], [100], [100]])
 #ori_desired = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
 
 
@@ -157,3 +161,17 @@ ax.plot([P0[0], P1[0], P2[0], P3[0], P4[0], P5[0], P6[0], P7[0], P8[0], P9[0]],
 result = P9
 
 print(result)
+
+# Extract the rotation matrix from the homogeneous transform matrix T09
+R = np.array(T09[:3, :3])
+
+# Calculate the roll, pitch, and yaw angles using the rotation matrix
+roll = math.atan2(R[2, 1], R[2, 2])
+pitch = math.atan2(-R[2, 0], math.sqrt(R[2, 1]**2 + R[2, 2]**2))
+yaw = math.atan2(R[1, 0], R[0, 0])
+
+
+# Print the angles
+print("Roll:", roll)
+print("Pitch:", pitch)
+print("Yaw:", yaw)
