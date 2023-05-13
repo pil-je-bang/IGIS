@@ -50,7 +50,8 @@ def DH_transform(q, d, a, alpha):
 # Define the forward kinematics function
 def forward_kinematics(q_values):
     # Replace the symbol values with the given joint angles
-    DH_params_subs = DH_params.subs({q1: q_values[0], q2: q_values[1], q3: q_values[2], q4: q_values[3], q5: q_values[4], q6: q_values[5]})
+    DH_params_subs = DH_params.subs({q1: q_values[0], q2: q_values[1], q3: q_values[2], 
+                                     q4: q_values[3], q5: q_values[4], q6: q_values[5]})
     
     # Calculate the transformation matrix from base to end effector
     T_06 = calc_T(DH_params_subs, 0, 5) * calc_T(DH_params_subs, 6, 8)
@@ -143,8 +144,6 @@ P8 = np.array(T08 * origin)[:3].flatten()
 P9 = np.array(T09 * origin)[:3].flatten()
 
 
-#좌표 시각화
-
 
 # Define the plot settings
 fig = plt.figure()
@@ -158,10 +157,6 @@ ax.plot([P0[0], P1[0], P2[0], P3[0], P4[0], P5[0], P6[0], P7[0], P8[0], P9[0]],
         [P0[1], P1[1], P2[1], P3[1], P4[1], P5[1], P6[1], P7[1], P8[1], P9[1]],
         [P0[2], P1[2], P2[2], P3[2], P4[2], P5[2], P6[2], P7[2], P9[2], P9[2]], 'ro-')
 
-result = P9
-
-print(result)
-
 # Extract the rotation matrix from the homogeneous transform matrix T09
 R = np.array(T09[:3, :3])
 
@@ -169,9 +164,9 @@ R = np.array(T09[:3, :3])
 roll = math.atan2(R[2, 1], R[2, 2])
 pitch = math.atan2(-R[2, 0], math.sqrt(R[2, 1]**2 + R[2, 2]**2))
 yaw = math.atan2(R[1, 0], R[0, 0])
+ori = np.array([roll, pitch, yaw])
 
-
-# Print the angles
-print("Roll:", roll)
-print("Pitch:", pitch)
-print("Yaw:", yaw)
+x = P9
+ori = np.array([roll, pitch, yaw])
+ee = np.concatenate((x, ori), axis=0)
+print(ee)
