@@ -54,11 +54,11 @@ def forward_kinematics(q_values):
                                      q4: q_values[3], q5: q_values[4], q6: q_values[5]})
     
     # Calculate the transformation matrix from base to end effector
-    T_06 = calc_T(DH_params_subs, 0, 5) * calc_T(DH_params_subs, 6, 8)
+    T_09 = calc_T(DH_params_subs, 0, 5) * calc_T(DH_params_subs, 6, 8)
     
     # Extract the position and orientation of the end effector from the transformation matrix
-    pos = np.array(T_06[0:3, 3], dtype=np.float64)
-    ori = np.array(T_06[0:3, 0:3], dtype=np.float64)
+    pos = np.array(T_09[0:3, 3], dtype=np.float64)
+    ori = np.array(T_09[0:3, 0:3], dtype=np.float64)
     
     return pos, ori
 
@@ -93,7 +93,7 @@ rot_mat = r.as_matrix()
 print(rot_mat)
 
 # Set the desired end effector position and orientation
-x_desired = np.array([[1000], [100], [100]])
+x_desired = np.array([[500], [1000], [500]])
 #ori_desired = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
 
 
@@ -146,16 +146,21 @@ P9 = np.array(T09 * origin)[:3].flatten()
 
 
 # Define the plot settings
-fig = plt.figure()
+fig = plt.figure(figsize=(8,6))
 ax = fig.add_subplot(111, projection='3d')
 ax.set_xlim(-1000, 1000)
 ax.set_ylim(-1000, 1000)
 ax.set_zlim(0, 1000)
+ax.set_title('visualization of robot path')
+ax.set_xlabel('x-axis')
+ax.set_ylabel('y-axis')
+ax.set_zlabel('z-axis')
+
 
 # Plot the arm
 ax.plot([P0[0], P1[0], P2[0], P3[0], P4[0], P5[0], P6[0], P7[0], P8[0], P9[0]],
         [P0[1], P1[1], P2[1], P3[1], P4[1], P5[1], P6[1], P7[1], P8[1], P9[1]],
-        [P0[2], P1[2], P2[2], P3[2], P4[2], P5[2], P6[2], P7[2], P9[2], P9[2]], 'ro-')
+        [P0[2], P1[2], P2[2], P3[2], P4[2], P5[2], P6[2], P7[2], P8[2], P9[2]], 'ro-')
 
 # Extract the rotation matrix from the homogeneous transform matrix T09
 R = np.array(T09[:3, :3])
