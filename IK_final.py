@@ -63,25 +63,30 @@ def forward_kinematics(q_values):
     return pos, ori
 
 # Define the inverse kinematics function
-def inverse_kinematics(x_desired, ori_desired):
+def inverse_kinematics(x_desired, rot_mat):
     def error_function(q_values):
         pos, ori = forward_kinematics(q_values)
         pos_error = np.linalg.norm(pos - np.array(x_desired))
-        ori_error = np.linalg.norm(ori_desired - np.array(ori))
+        ori_error = np.linalg.norm(rot_mat - np.array(ori))
 
         return pos_error + ori_error
     
     # Set initial guess for joint angles
-    q_initial_guess = np.array([0, 0, 0, 0, 0, 0])
+    q_initial_guess = np.array([0.5, 0, 1, 2, 1.3, 0])
     
     # Use the SLSQP algorithm to minimize the error function
-    result = minimize(error_function, q_initial_guess, method='BFGS')
-    
+    #bounds = [(-np.pi, np.pi)] * 6
+    #options = {'disp': True, 'maxiter': 1000}
+    result = minimize(error_function, q_initial_guess, method='Nelder-Mead')
+
+
+
+
     return result.x
 
-roll = 0
-pitch= 0
-yaw = 0
+roll = 1
+pitch= 1
+yaw = 1
 
 
 
@@ -93,7 +98,7 @@ rot_mat = r.as_matrix()
 print(rot_mat)
 
 # Set the desired end effector position and orientation
-x_desired = np.array([[500], [1000], [500]])
+x_desired = np.array([[750], [832], [350]])
 #ori_desired = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
 
 
